@@ -1,64 +1,77 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import Screen1Login from "../components/screens/Screen1Login";
+import Screen2Overview from "../components/screens/Screen2Overview";
+import Screen3OrgSetup from "../components/screens/Screen3OrgSetup";
+import Screen4AssetDir from "../components/screens/Screen4AssetDir";
+import Screen5Transfer from "../components/screens/Screen5Transfer";
+import Screen6Booking from "../components/screens/Screen6Booking";
+import Screen7Kanban from "../components/screens/Screen7Kanban";
+import Screen8Audit from "../components/screens/Screen8Audit";
+import Screen9Reports from "../components/screens/Screen9Reports";
+import Screen10Notifications from "../components/screens/Screen10Notifications";
+
+export default function AppRouter() {
+  const [currentScreen, setCurrentScreen] = useState("login");
+
+  if (currentScreen === "login") {
+    return <Screen1Login onLogin={() => setCurrentScreen("dashboard")} />;
+  }
+
+  const NavItem = ({ id, label }: { id: string, label: string }) => (
+    <div 
+      onClick={() => setCurrentScreen(id)}
+      className={`block px-4 py-3 rounded-xl cursor-pointer transition-all text-sm font-medium ${
+        currentScreen === id 
+          ? "bg-slate-800 text-white shadow-inner" 
+          : "text-slate-400 hover:bg-slate-800 hover:text-white"
+      }`}
+    >
+      {label}
+    </div>
+  );
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
+      {/* Sidebar */}
+      <aside className="w-72 bg-slate-900 text-white flex flex-col flex-shrink-0 shadow-xl z-10">
+        <div className="p-8 text-2xl font-bold border-b border-slate-800/50 flex items-center">
+          <div className="w-10 h-10 rounded-full border border-slate-600 flex items-center justify-center text-sm mr-4 tracking-wider">AF</div>
+          AssetFlow
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <nav className="flex-1 p-5 space-y-1.5 overflow-y-auto">
+          <NavItem id="dashboard" label="Dashboard" />
+          <NavItem id="orgsetup" label="Organization setup" />
+          <NavItem id="assets" label="Assets" />
+          <NavItem id="allocation" label="Allocation & Transfer" />
+          <NavItem id="booking" label="Resource Booking" />
+          <NavItem id="maintenance" label="Maintenance" />
+          <NavItem id="audit" label="Audit" />
+          <NavItem id="reports" label="Reports" />
+          <NavItem id="notifications" label="Notifications" />
+        </nav>
+        <div className="p-5 border-t border-slate-800/50">
+          <button 
+            onClick={() => setCurrentScreen("login")}
+            className="w-full py-3 text-sm text-slate-400 hover:text-white transition-colors"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Sign Out
+          </button>
         </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto bg-slate-50/50">
+        {currentScreen === "dashboard" && <Screen2Overview />}
+        {currentScreen === "orgsetup" && <Screen3OrgSetup />}
+        {currentScreen === "assets" && <Screen4AssetDir />}
+        {currentScreen === "allocation" && <Screen5Transfer />}
+        {currentScreen === "booking" && <Screen6Booking />}
+        {currentScreen === "maintenance" && <Screen7Kanban />}
+        {currentScreen === "audit" && <Screen8Audit />}
+        {currentScreen === "reports" && <Screen9Reports />}
+        {currentScreen === "notifications" && <Screen10Notifications />}
       </main>
     </div>
   );
