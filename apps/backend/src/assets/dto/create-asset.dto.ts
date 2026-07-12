@@ -24,8 +24,8 @@ export class CreateAssetDto {
   serialNumber?: string;
 
   @IsString()
-  @IsNotEmpty()
-  categoryId: string;
+  @IsOptional()
+  categoryId?: string;
 
   @IsDateString()
   @IsOptional()
