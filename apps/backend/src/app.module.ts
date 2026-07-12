@@ -5,11 +5,23 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { AssetsModule } from './assets/assets.module';
+import { MaintenanceModule } from './maintenance/maintenance.module';
+import { AuditModule } from './audit/audit.module';
+import { OrgModule } from './org/org.module';
+import { BookingModule } from './booking/booking.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
 
 @Module({
-  imports: [PrismaModule, AuthModule, AssetsModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    AssetsModule,
+    MaintenanceModule,
+    AuditModule,
+    OrgModule,
+    BookingModule,
+  ],
   controllers: [AppController],
   providers: [
     AppService,

@@ -98,9 +98,22 @@ export class AssetsService {
         throw new NotFoundException(`Asset ${dto.assetId} not found`);
       }
       if (asset.status !== 'AVAILABLE') {
-        throw new ConflictException(
-          `Asset ${asset.assetTag} is currently ${asset.status} and cannot be allocated directly.`,
-        );
+        const activeAllocation = await tx.allocation.findFirst({
+          where: { assetId: asset.id, status: 'ACTIVE' },
+          include: { user: true, department: true },
+        });
+        const currentHolderName =
+          activeAllocation?.user?.name ||
+          activeAllocation?.department?.name ||
+          'Assigned Holder';
+
+        throw new ConflictException({
+          statusCode: 409,
+          message: `Double-Allocation Blocked: Asset ${asset.assetTag} is currently ${asset.status}.`,
+          currentAssetStatus: asset.status,
+          currentHolderName,
+          allocationTimestamp: activeAllocation?.allocatedAt || asset.updatedAt,
+        });
       }
 
       const allocation = await tx.allocation.create({

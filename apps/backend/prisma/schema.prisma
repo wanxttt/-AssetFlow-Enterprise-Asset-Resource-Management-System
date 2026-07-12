@@ -35,6 +35,7 @@ enum AllocationStatus {
 enum MaintenanceStatus {
   PENDING
   APPROVED
+  TECHNICIAN_ASSIGNED
   IN_PROGRESS
   RESOLVED
   CANCELLED
@@ -214,10 +215,12 @@ model AuditRecord {
   assetId      String
   asset        Asset      @relation(fields: [assetId], references: [id], onDelete: Cascade)
   
-  status       String     @default("PENDING")
-  notes        String?
+  status          String     @default("PENDING")
+  notes           String?
+  isDiscrepancy   Boolean    @default(false)
+  discrepancyType String?
 
-  createdAt    DateTime   @default(now())
+  createdAt       DateTime   @default(now())
   updatedAt    DateTime   @default(now()) @updatedAt
 
   @@index([auditCycleId])
