@@ -1,15 +1,26 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function useNotifications() {
   const [activeTab, setActiveTab] = useState("All");
-  
-  const allNotifications = [
-    { id: 1, type: "Alerts", message: "Asset AF-0201 requires immediate maintenance.", time: "10 mins ago" },
-    { id: 2, type: "Approvals", message: "Pending transfer request from Priya Shah.", time: "1 hour ago" },
-    { id: 3, type: "Bookings", message: "Conference Room A booked by Aditi Rao.", time: "2 hours ago" },
-    { id: 4, type: "Alerts", message: "3 assets overdue for return.", time: "1 day ago" },
-  ];
+  const [allNotifications, setAllNotifications] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchNotifications() {
+      try {
+        const res = await fetch("http://localhost:3005/api/notifications");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) setAllNotifications(data);
+        } else {
+          console.error("Failed to fetch notifications from backend");
+        }
+      } catch (error) {
+        console.error("Failed to fetch notifications (network error):", error);
+      }
+    }
+    fetchNotifications();
+  }, []);
 
   const filtered = activeTab === "All" 
     ? allNotifications 

@@ -1,18 +1,56 @@
 "use client";
-import { useState } from "react";
-
-const mockAssets = [
-  { tag: "AF-0012", name: "Dell Laptop", category: "Electronics", status: "Allocated", location: "bengaluru" },
-  { tag: "AF-0062", name: "Projector", category: "Electronics", status: "Maintenance", location: "HQ floor 2" },
-  { tag: "AF-0201", name: "Office chair", category: "Furniture", status: "Available", location: "Warehouse" },
-];
+import { useState, useEffect } from "react";
 
 export default function Screen4AssetDir() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [assets, setAssets] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredAssets = mockAssets.filter((asset) => 
-    asset.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    asset.tag.toLowerCase().includes(searchTerm.toLowerCase())
+  const fetchAssets = async () => {
+    try {
+      const res = await fetch("http://localhost:3005/api/assets");
+      if (res.ok) {
+        const data = await res.json();
+        // Defensive check to ensure we get an array
+        if (Array.isArray(data)) {
+          setAssets(data);
+        } else if (data.count !== undefined) {
+          setAssets([]); // Fallback if backend still returning mock count
+        }
+      } else {
+        console.error("Fetch returned non-OK status");
+      }
+    } catch (error) {
+      console.error("Failed to fetch assets:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAssets();
+  }, []);
+
+  const handleRegisterAsset = async () => {
+    try {
+      const res = await fetch("http://localhost:3005/api/assets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: "New Registered Asset", location: "Warehouse" }),
+      });
+      if (res.ok) {
+        fetchAssets(); // Refresh list automatically
+      } else {
+        console.error("POST /api/assets failed");
+      }
+    } catch (error) {
+      console.error("Failed to register asset:", error);
+    }
+  };
+
+  const filteredAssets = assets.filter((asset: any) => 
+    (asset.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) || 
+    (asset.assetTag?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -27,7 +65,7 @@ export default function Screen4AssetDir() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors whitespace-nowrap text-sm">
+        <button onClick={handleRegisterAsset} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors whitespace-nowrap text-sm">
           + Register Asset
         </button>
       </div>
@@ -44,25 +82,25 @@ export default function Screen4AssetDir() {
             <tr>
               <th className="p-5 font-semibold text-slate-600 text-sm">Tag</th>
               <th className="p-5 font-semibold text-slate-600 text-sm">Name</th>
-              <th className="p-5 font-semibold text-slate-600 text-sm">Category</th>
               <th className="p-5 font-semibold text-slate-600 text-sm">Status</th>
               <th className="p-5 font-semibold text-slate-600 text-sm">Location</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {filteredAssets.length > 0 ? (
-              filteredAssets.map((asset) => (
-                <tr key={asset.tag} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="p-5 font-medium text-slate-800">{asset.tag}</td>
+            {loading ? (
+               <tr><td colSpan={4} className="p-8 text-center text-slate-500">Loading assets from DB...</td></tr>
+            ) : filteredAssets.length > 0 ? (
+              filteredAssets.map((asset: any) => (
+                <tr key={asset.assetTag} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="p-5 font-medium text-slate-800">{asset.assetTag}</td>
                   <td className="p-5 text-slate-600">{asset.name}</td>
-                  <td className="p-5 text-slate-600">{asset.category}</td>
                   <td className="p-5 text-slate-600">{asset.status}</td>
-                  <td className="p-5 text-slate-600">{asset.location}</td>
+                  <td className="p-5 text-slate-600">{asset.location || "N/A"}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="p-8 text-center text-slate-500">No assets found matching your search.</td>
+                <td colSpan={4} className="p-8 text-center text-slate-500">No assets found matching your search.</td>
               </tr>
             )}
           </tbody>
